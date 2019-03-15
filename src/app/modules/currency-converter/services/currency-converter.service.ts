@@ -30,11 +30,8 @@ export class CurrencyConverterService {
     }
 
     convertCurrency(payload: CurrencyFormPayload) {
-    // convertCurrency(currencyNeeded, moneyAmount) {
-        const exchangeFactor = this.currentExchangeRates[payload.target];
-        const exchangeValue = payload.amount / exchangeFactor;
-        const value = payload.amount * exchangeFactor;
-        console.log(exchangeValue.toFixed(2) + 'in ' + payload.target + '.');
-        return exchangeValue;
+        console.log(payload);
+        const exchangeFactor = payload.target * payload.amount;
+        return exchangeFactor.toFixed(2);
     }
 }

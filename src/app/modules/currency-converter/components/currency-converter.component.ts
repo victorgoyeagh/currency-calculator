@@ -51,13 +51,13 @@ export class CurrencyConverterComponent implements OnInit {
         } else {
 
             const payload: CurrencyFormPayload = {
-                base: this.currencyConverterForm.controls.selBaseCurrency.value,
-                target: this.currencyConverterForm.controls.selTargetCurrency.value,
-                amount: this.currencyConverterForm.controls.txtAmount.value
+                base: <number>this.currencyConverterForm.controls.selBaseCurrency.value,
+                target: <number>this.currencyConverterForm.controls.selTargetCurrency.value,
+                amount: <number>this.currencyConverterForm.controls.txtAmount.value
             };
 
-            const conversionResult = this.currencyConverterService.convertCurrency(payload);
-            console.log(conversionResult);
+            this.conversionResult = this.currencyConverterService.convertCurrency(payload);
+            console.log(this.conversionResult);
         }
     }
 }

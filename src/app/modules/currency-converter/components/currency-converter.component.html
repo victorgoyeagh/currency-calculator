@@ -54,10 +54,16 @@
                 <div class="form-group">
                     <button type="text" class="btn btn-default" (click)="performConversion()">Convert amount</button>
                 </div>
-
             </form>
         </div>
+    </div>
 
+    <div class="row">
+        <div class="col-sm-12">
+            {{ conversionResult }}
+        </div>
+    </div>
+    <div class="row">
         <div class="col-sm-12" *ngIf="objectKeys(targetCurrency).length">
             <h3>Current prices</h3>
             <div class="currentPrices">
