@@ -8,8 +8,8 @@ import { CurrencyConverterModule } from './modules/currency-converter/currency-c
         AppComponent
     ],
     imports: [
-        CurrencyConverterModule,
-        BrowserModule
+        BrowserModule,
+        CurrencyConverterModule
     ],
     providers: [],
     bootstrap: [AppComponent]

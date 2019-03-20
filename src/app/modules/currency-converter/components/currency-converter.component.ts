@@ -1,6 +1,7 @@
-import { ExchangeRates, CurrencyFormPayload } from './../models/currency-converter.model';
+import { Subscription } from 'rxjs';
+import { ExchangeRates, CurrencyFormPayload, RatesQueryType, BASE_CURRENCIES, Rates } from './../models/currency-converter.model';
 import { CurrencyConverterService } from './../services/currency-converter.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, AfterViewInit, ElementRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 
@@ -9,12 +10,18 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
     templateUrl: './currency-converter.component.html',
     styleUrls: ['./currency-converter.component.scss']
 })
-export class CurrencyConverterComponent implements OnInit {
-    public targetCurrency = {};
-    objectKeys = Object.keys;
+export class CurrencyConverterComponent implements OnInit, OnDestroy {
+    public baseCurrencies = undefined;
+    public targetCurrencies = {};
+    public objectKeys = Object.keys;
     public items = {};
     public base = {};
-    public conversionResult: string = undefined;
+    public conversionResult = '';
+    public subs = new Array<Subscription>();
+    private defaultBase = 'EUR';
+    public payload: CurrencyFormPayload;
+    public selectedTargetCurrencyCode = undefined;
+    public sub_1: Subscription;
 
     // form
     public currencyConverterForm = new FormGroup({
@@ -23,21 +30,37 @@ export class CurrencyConverterComponent implements OnInit {
         txtAmount: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)])
     });
 
+    @ViewChild('selTargetCurrency') selTargetCurrency: ElementRef;
+
     constructor(
         protected currencyConverterService: CurrencyConverterService
-    ) { }
-
-    ngOnInit() {
-        this.currencyConverterService.shareLatestRates.subscribe((value: ExchangeRates) => {
-            this.items = value.rates;
-        });
+    ) {
+        this.baseCurrencies = BASE_CURRENCIES;
+        this.currencyConverterForm.controls.selBaseCurrency.setValue(this.defaultBase);
     }
 
-    popullateTargetCurrentList(event: Event) {
-        const selectedValue = event.target['value'];
+    ngOnInit() {
+        this.applySubscription(this.defaultBase);
+    }
+
+    populateTargetCurrentList(event: Event) {
+        if (event) {
+            const target = event.target;
+            this.applySubscription(target['value']);
+            this.currencyConverterForm.controls.selTargetCurrency.setValue('');
+        }
+    }
+
+    selectTargetCurrent(event: Event) {
+        const target = event.target;
+        const selectedIndex = target['options'].selectedIndex;
+        const selectElementText = (<HTMLOptionElement>target['options'][selectedIndex]).text;
+        this.selectedTargetCurrencyCode = selectElementText.trim();
+    }
+
+    applySubscription(selectedValue: string) {
         this.currencyConverterService.getLatestRatesByBaseCurrency(selectedValue).subscribe((value: ExchangeRates) => {
-            console.log(value.rates);
-            this.targetCurrency = value.rates;
+            this.targetCurrencies = value.rates;
         });
     }
 
@@ -45,19 +68,30 @@ export class CurrencyConverterComponent implements OnInit {
 
         if (!this.currencyConverterForm.valid) {
 
-            for (let i in this.currencyConverterForm.controls) {
-                this.currencyConverterForm.controls[i].markAsTouched();
+            for (const i in this.currencyConverterForm.controls) {
+                if (this.currencyConverterForm.controls.hasOwnProperty(i)) {
+                    this.currencyConverterForm.controls[i].markAsTouched();
+                }
             }
         } else {
 
-            const payload: CurrencyFormPayload = {
-                base: <number>this.currencyConverterForm.controls.selBaseCurrency.value,
+            this.payload = {
+                base: <string>this.currencyConverterForm.controls.selBaseCurrency.value,
                 target: <number>this.currencyConverterForm.controls.selTargetCurrency.value,
                 amount: <number>this.currencyConverterForm.controls.txtAmount.value
             };
 
-            this.conversionResult = this.currencyConverterService.convertCurrency(payload);
-            console.log(this.conversionResult);
+            this.conversionResult = this.currencyConverterService.getCurrencySymbolByCode(this.payload.base) + this.payload.amount + ' = ';
+            this.conversionResult += this.currencyConverterService.getCurrencySymbolByCode(this.selectedTargetCurrencyCode);
+            this.conversionResult += this.currencyConverterService.convertCurrency(this.payload);
         }
+    }
+
+    ngOnDestroy() {
+        this.subs.forEach((sub: Subscription) => {
+            if (sub) {
+                sub.unsubscribe();
+            }
+        });
     }
 }

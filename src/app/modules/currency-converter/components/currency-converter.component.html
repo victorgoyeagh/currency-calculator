@@ -4,11 +4,11 @@
             <form id="currencyConverterForm" [formGroup]="currencyConverterForm" autocomplete="off">
                 <div class="form-group">
                     <label for="selBaseCurrency">Base currency</label>
-                    <select id="selBaseCurrency" formControlName="selBaseCurrency" name="selBaseCurrency"
-                        class="form-control" (change)="popullateTargetCurrentList($event)">
+                    <select #selBaseCurrency id="selBaseCurrency" formControlName="selBaseCurrency" name="selBaseCurrency"
+                        class="form-control" (change)="populateTargetCurrentList($event)">
                         <option value="">Select base currency...</option>
                         <option value="EUR">EUR</option>
-                        <option *ngFor="let key of objectKeys(items)" [value]="key">{{key}}</option>
+                        <option *ngFor="let item of baseCurrencies" [value]="item">{{item}}</option>
                     </select>
                     <div *ngIf="currencyConverterForm.controls.selBaseCurrency.invalid && (currencyConverterForm.controls.selBaseCurrency.dirty || currencyConverterForm.controls.selBaseCurrency.touched)"
                         class="error-list">
@@ -21,10 +21,10 @@
 
                 <div class="form-group">
                     <label for="selTargetCurrency">Target currency</label>
-                    <select id="selTargetCurrency" formControlName="selTargetCurrency" name="selTargetCurrency"
-                        class="form-control">
+                    <select #selTargetCurrency id="selTargetCurrency" formControlName="selTargetCurrency" name="selTargetCurrency"
+                        class="form-control" (change)="selectTargetCurrent($event)">
                         <option value="">Select target currency...</option>
-                        <option *ngFor="let key of objectKeys(targetCurrency)" [value]="targetCurrency[key]">{{key}}
+                        <option *ngFor="let key of objectKeys(targetCurrencies)" [value]="targetCurrencies[key]">{{key}}
                         </option>
                     </select>
                     <div *ngIf="currencyConverterForm.controls.selTargetCurrency.invalid && (currencyConverterForm.controls.selTargetCurrency.dirty || currencyConverterForm.controls.selTargetCurrency.touched)"
@@ -40,7 +40,7 @@
                     <label for="txtAmount">Amount $</label>
                     <input type="text" id="txtAmount" formControlName="txtAmount" name="txtAmount"
                         class="form-control" />
-                    <div *ngIf="currencyConverterForm.controls.txtAmount.invalid && (currencyConverterForm.controls.txtAmount.dirty || currencyConverterForm.controls.txtAmount.touched)"
+                    <div id="" *ngIf="currencyConverterForm.controls.txtAmount.invalid && (currencyConverterForm.controls.txtAmount.dirty || currencyConverterForm.controls.txtAmount.touched)"
                         class="error-list">
                         <span class="error-list__item" *ngIf="currencyConverterForm.controls.txtAmount.errors.required">
                             <small>The amount is required</small>
@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button type="text" class="btn btn-default" (click)="performConversion()">Convert amount</button>
+                    <button id="btnPerformConversion" type="text" class="btn btn-default btnPerformConversion" (click)="performConversion()">Convert amount</button>
                 </div>
             </form>
         </div>
@@ -60,15 +60,15 @@
 
     <div class="row">
         <div class="col-sm-12">
-            {{ conversionResult }}
+            <span class="conversion-result" [innerText]="conversionResult"></span>
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12" *ngIf="objectKeys(targetCurrency).length">
+        <div class="col-sm-12" *ngIf="objectKeys(targetCurrencies).length">
             <h3>Current prices</h3>
             <div class="currentPrices">
                 <ul>
-                    <li *ngFor="let key of objectKeys(targetCurrency)">{{key +' '+ targetCurrency[key]}}</li>
+                    <li *ngFor="let key of objectKeys(targetCurrencies)">{{key +' '+ targetCurrencies[key]}}</li>
                 </ul>
             </div>
         </div>
